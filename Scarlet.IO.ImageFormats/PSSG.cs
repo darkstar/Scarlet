@@ -136,12 +136,12 @@ namespace Scarlet.IO.ImageFormats
             get
             {
                 // TODO: this is a WIP check... let's see how it works out. The original has a few names hardcoded that are known data nodes:
-                string[] knownDataNodes = new string[] {"BOUNDINGBOX", "DATA", "DATABLOCKDATA", "DATABLOCKBUFFERED", "INDEXSOURCEDATA",
+                HashSet<string> knownDataNodes = new HashSet<string> {"BOUNDINGBOX", "DATA", "DATABLOCKDATA", "DATABLOCKBUFFERED", "INDEXSOURCEDATA",
                     "INVERSEBINDMATRIX", "MODIFIERNETWORKINSTANCEUNIQUEMODIFIERINPUT", "NeAnimPacketData_B1", "NeAnimPacketData_B4",
                     "RENDERINTERFACEBOUNDBUFFERED", "SHADERINPUT", "TEXTUREIMAGEBLOCKDATA", "TRANSFORM" };
 
-                // instead, we do this check:
-                return Attributes.Count == 0;
+                // instead, we do this check (the attribute check is not in the original code)
+                return Attributes.Count == 0 || knownDataNodes.Contains(Name);
             }
         }
         public byte[] Data { get; private set; }
@@ -271,6 +271,10 @@ namespace Scarlet.IO.ImageFormats
                     break;
                 case "dxt5":
                     pixelFormat = PixelDataFormat.FormatDXT5;
+                    flipY = true;
+                    break;
+                case "dxt3":
+                    pixelFormat = PixelDataFormat.FormatDXT3;
                     flipY = true;
                     break;
                 default:
