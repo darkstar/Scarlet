@@ -85,7 +85,8 @@ namespace Scarlet.IO.ContainerFormats
             /* Check first file's length; if greater than filesize, assume invalid */
             reader.BaseStream.Seek(0x24, SeekOrigin.Begin);
             uint firstFileSize = reader.ReadUInt32();
-            if (firstFileSize > reader.BaseStream.Length) return false;
+            if ((firstFileSize > reader.BaseStream.Length) ||
+                (firstFileSize == 0)) return false;
 
             /* Assume file is valid */
             return true;
