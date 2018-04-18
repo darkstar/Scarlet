@@ -50,6 +50,7 @@
     <Compile Include="GARv2.cs" />
     <Compile Include="GARv5.cs" />
     <Compile Include="MPK.cs" />
+    <Compile Include="GPDA.cs" />
     <Compile Include="NARC.cs" />
     <Compile Include="NISPACK.cs" />
     <Compile Include="NSAC.cs" />
