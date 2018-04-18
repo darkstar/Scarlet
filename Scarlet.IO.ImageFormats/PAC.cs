@@ -63,6 +63,10 @@ namespace Scarlet.IO.ImageFormats
             reader.Endianness = Endian.LittleEndian;
             result.NumImages = reader.ReadInt32();
 
+            /* some arbitrary upper limit for the number of files */
+            if (result.NumImages > 0x10000)
+                return null;
+
             /* each image has two ints, offset and size, in the header */
             if (reader.BaseStream.Length < 4 + result.NumImages * 8)
                 return null;
