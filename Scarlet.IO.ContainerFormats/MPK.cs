@@ -8,20 +8,31 @@ namespace Scarlet.IO.ContainerFormats
 {
     public class MPKFile : ContainerElement
     {
-        public uint Unknown0x00 { get; private set; }
+        public uint CompressionFlag { get; private set; }
         public uint ID { get; private set; }
         public ulong Offset { get; private set; }
         public ulong CompressedFileSize { get; private set; }
         public ulong UncompressedFileSize { get; private set; }
         public string FilePath { get; private set; }
 
-        public MPKFile(EndianBinaryReader reader)
+        public MPKFile(EndianBinaryReader reader, Int16 version)
         {
-            Unknown0x00 = reader.ReadUInt32();
-            ID = reader.ReadUInt32();
-            Offset = reader.ReadUInt64();
-            CompressedFileSize = reader.ReadUInt64();
-            UncompressedFileSize = reader.ReadUInt64();
+            if (version <= 1)
+            {
+                CompressionFlag = reader.ReadUInt32();
+                Offset = reader.ReadUInt32();
+                CompressedFileSize = reader.ReadUInt32();
+                UncompressedFileSize = reader.ReadUInt32();
+                reader.ReadBytes(0x10); /* padding, should be 0x00 */
+            }
+            else
+            {
+                CompressionFlag = reader.ReadUInt32();
+                ID = reader.ReadUInt32();
+                Offset = reader.ReadUInt64();
+                CompressedFileSize = reader.ReadUInt64();
+                UncompressedFileSize = reader.ReadUInt64();
+            }
             FilePath = Encoding.ASCII.GetString(reader.ReadBytes(0xE0)).TrimEnd('\0');
         }
 
@@ -45,8 +56,8 @@ namespace Scarlet.IO.ContainerFormats
     {
         public string MagicNumber { get; private set; }
         public ushort Unknown0x04 { get; private set; }
-        public ushort Unknown0x06 { get; private set; }
-        public uint NumFiles { get; private set; }
+        public short Version { get; private set; }
+        public int NumFiles { get; private set; }
         public byte[] Unknown0x0C { get; private set; } /* 34 bytes */
         public MPKFile[] Files { get; private set; }
 
@@ -54,17 +65,17 @@ namespace Scarlet.IO.ContainerFormats
         {
             MagicNumber = Encoding.ASCII.GetString(reader.ReadBytes(4));
             Unknown0x04 = reader.ReadUInt16();
-            Unknown0x06 = reader.ReadUInt16();
-            NumFiles = reader.ReadUInt32();
+            Version = reader.ReadInt16();
+            NumFiles = reader.ReadInt32();
             Unknown0x0C = reader.ReadBytes(0x34);
 
             Files = new MPKFile[NumFiles];
-            for (int i = 0; i < Files.Length; i++) Files[i] = new MPKFile(reader);
+            for (int i = 0; i < Files.Length; i++) Files[i] = new MPKFile(reader, Version);
         }
 
         public override int GetElementCount()
         {
-            return (int)NumFiles;
+            return NumFiles;
         }
 
         protected override ContainerElement GetElement(Stream containerStream, int elementIndex)
