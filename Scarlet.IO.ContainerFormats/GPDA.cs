@@ -75,8 +75,7 @@ namespace Scarlet.IO.ContainerFormats
 
         protected override ContainerElement GetElement(Stream containerStream, int elementIndex)
         {
-            if ((elementIndex < 0) || (elementIndex >= NumFiles))
-                throw new ArgumentException("Invalid element index.");
+            if (elementIndex < 0 || elementIndex >= NumFiles) throw new IndexOutOfRangeException("Invalid file index specified");
 
             return Files[elementIndex];
         }
